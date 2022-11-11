@@ -13,6 +13,9 @@ const resultado = computed(() => {
   }).join('')
 })
 
+const respuestaFailed = ref(false)
+const respuesta = ref()
+
 const mod = (n, m) => ((n % m) + m) % m
 
 const procrastination = [
@@ -30,14 +33,37 @@ const handleListItemClick = (desplz, texto) => {
 }
 
 const handleClick = async () => {
-  await fetch('https://donde-esta-supercoco.vercel.app/api/reto/1', {
-    headers: {
-      Accept: 'application/json',
-      'Content-Type': 'application/json'
-    },
-    method: 'POST',
-    body: JSON.stringify({ solution: resultado.value })
-  })
+  try {
+    const response = await fetch('https://donde-esta-supercoco.vercel.app/api/reto/1', {
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json'
+      },
+      method: 'POST',
+      body: JSON.stringify({ solution: resultado.value })
+    })
+
+    if (!response.ok) {
+      console.error('Algo ha ido mal', response.status)
+      respuesta.value = 'Algo ha ido mal (' + response.status + ')'
+      respuestaFailed.value = true
+      return
+    }
+
+    const data = await response.json()
+    console.log(data)
+    respuesta.value = data.status
+    respuestaFailed.value = false
+  } catch (ex) {
+    console.error('Algo ha ido mal...')
+    respuesta.value = 'Algo ha ido mal...'
+    respuestaFailed.value = true
+  }
+
+  setTimeout(() => {
+    respuesta.value = ''
+    respuestaFailed.value = false
+  }, 4000)
 }
 
 </script>
@@ -74,6 +100,10 @@ const handleClick = async () => {
 
       <button @click="handleClick" title="está deshabilitado porque la llamada a la api no se puede realizar por CORS">Envia el
         resultado!</button>
+
+      <div class="respuesta" v-if="respuesta" :class="{ failed: respuestaFailed }">
+        {{ respuesta }}
+      </div>
 
       <div class="procrastinacion">
 
@@ -174,5 +204,19 @@ button:disabled {
 .procrastinacion {
   font-size: smaller;
   margin-top: 3em;
+}
+
+.respuesta {
+
+  --color: green;
+
+  margin-top: 1em;
+  border: 3px solid var(--color);
+  padding: 10px;
+  box-shadow: 10px 10px 0 0 var(--color);
+}
+
+.failed {
+  --color: red;
 }
 </style>
