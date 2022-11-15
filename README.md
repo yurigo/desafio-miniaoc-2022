@@ -18,16 +18,17 @@ const resultado = computed(() => {
 })
 ```
 
-El desplazamiento debe ser positivo.
+*En este caso el desplazamiento debe ser positivo.*
 
+¿Pero y si queremos codificar con desplazamiento negativo?
 
-Si queremos decodificar deberíamos trabajar con un desplazamiento negativo pero % no lo soporta.  Podemos implementar el negative modulo:
+🦄 BONUS: Un desplazamiento negativo nos permitirá decodificar!
+
+% no soporta valores negativos :(, pero podemos implementar el `negative modulo`:
 
 ```
 const mod = (n, m) => ((m % n) + n) % n
 ```
-
-Y de este modo implementar codificación (para desplazamientos positivos) y decodificación (para desplazamientos negativos)
 
 ## Testing
 
