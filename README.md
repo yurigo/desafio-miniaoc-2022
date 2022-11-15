@@ -6,16 +6,13 @@
 Para decodificar podemos trabajar con el siguiente algoritmo:
 
 ```
-const frase = ref('NVI EPVI YZ BVUOZGPBVOSZ')
-const desplazamiento = ref(5)
-const resultado = computed(() => {
-  const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-  return frase.value.split('').map((l) => {
-    if (l === ' ') return ' '
-    const d = letters.indexOf(l) + desplazamiento.value
-    return letters[d % letters.length]
+export const encrypt = (string, shift) => {
+  return string.toUpperCase().split('').map((letter) => {
+    if (letter === ' ') return ' '
+    const shiftedLetterIndex = (letters.indexOf(letter) + shift) % letters.length
+    return letters[shiftedLetterIndex]
   }).join('')
-})
+}
 ```
 
 *En este caso el desplazamiento debe ser positivo.*
@@ -24,7 +21,7 @@ const resultado = computed(() => {
 
 🦄 BONUS: Un desplazamiento negativo nos permitirá decodificar!
 
-% no soporta valores negativos :(, pero podemos implementar el `negative modulo`:
+`%` no soporta valores negativos ☹, pero podemos implementar el `negative modulo`:
 
 ```
 const mod = (n, m) => ((m % n) + n) % n
@@ -32,4 +29,6 @@ const mod = (n, m) => ((m % n) + n) % n
 
 ## Testing
 
-> proximamente
+Añadido `vitest` para el testing.
+
+
