@@ -1,22 +1,17 @@
 <script setup lang="ts">
+import { encrypt } from '../cipher/caesar.js'
 import { computed, ref } from 'vue'
 
 const frase = ref('Codifica lo que quieras con Cesar')
 const desplazamiento = ref(1)
 
 const resultado = computed(() => {
-  const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-  return frase.value.toUpperCase().split('').map((l) => {
-    if (l === ' ') return ' '
-    const d = letters.indexOf(l) - desplazamiento.value
-    return letters[mod(d, letters.length)]
-  }).join('')
+  console.log({ f: frase.value, d: desplazamiento.value })
+  return encrypt(frase.value, desplazamiento.value)
 })
 
 const respuestaFailed = ref(false)
 const respuesta = ref()
-
-const mod = (n, m) => ((n % m) + m) % m
 
 const procrastination = [
   { desplazamiento: -5, texto: 'NVI EPVI YZ BVUOZGPBVOSZ' },
