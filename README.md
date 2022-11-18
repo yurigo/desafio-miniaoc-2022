@@ -127,6 +127,14 @@ div::after {
 }
 ```
 
+## iOS issue
+
+iOS no hace la sombra bien al no ser un circulo:
+
+![ios issue](https://user-images.githubusercontent.com/5684699/202801349-85246fb5-7ab4-44d5-8047-9b6e8f883ea9.jpeg)
+
+Se cambia todo el enfoque a divs con borde :'(
+
 # 🏹 scroll-snap 🏸
 
 Vía [css](https://developer.mozilla.org/en-US/docs/Web/CSS/scroll-snap-type) se puede modificar el comportamiento del scroll provocando un snap en el scrolling
