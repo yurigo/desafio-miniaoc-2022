@@ -31,6 +31,10 @@ const mod = (n, m) => ((m % n) + n) % n
 
 Añadido `vitest` para el testing.
 
+Se ha creado un banco de pruebas:
+
+- [`caesar.test.js`](cipher/caesar.test.js)
+
 # Reto 2: Coordenadas ermitañas
 
 Al recibir un string de números, por ejemplo `1234` el enunciado nos pide que formemos 2 números de al menos un decimal separados por coma. En este caso, `1234` sólo puede dar el resultado de `1.2,3.4`.
@@ -70,11 +74,23 @@ Es decir:
 ( 7 3 ) = 7! / 3! ( 7 - 3 ) ! = 20
 ```
 
-etc..
+Este cálculo puede servirnos para crear un test específico que verifique si el algoritmo es óptimo.
 
 ## Testing
 
-**@TODO**
+Se han hecho 3 bancos de pruebas:
+
+- [`unwrapper.test.js`](coords/unwrapper.test.js)
+- [`helper.test.js`](coords/helper.test.js)
+- [`optimization.test.js`](coords/optimization.test.js)
+
+
+| test                 | descripcion                                                                                                                                                                                                                                                                                                                                           |
+| -------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| unwrapper.test.js    | Tests unitarios y de integración para el reto 2                                                                                                                                                                                                                                                                                                       |
+| helper.test.js       | Test unitarios del método isValid                                                                                                                                                                                                                                                                                                                     |
+| optimization.test.js | Al crear los resultados a partir de una entrada, se recorre el string con tres índices donde se insertará el '.' o la ','.  Teniendo en cuenta que se puede calcular el número de combinaciones posibles previamente a las iteraciones, podemos crear un test que verifique que se hacen tantas iteraciones como el número de combinaciones posibles. |
+
 
 # Extras:
 
