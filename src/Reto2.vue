@@ -1,9 +1,9 @@
 <!-- eslint-disable vue/multi-word-component-names -->
-<script setup lang="ts">
+<script setup lang="jsx">
 import { unwrap } from '../coords/unwrapper.js'
 import { computed, ref } from 'vue'
 
-const TEXTO_INICIAL = '{2035}'
+const TEXTO_INICIAL = '{3311014444}'
 const RESULTADO_INICIAL = '{2.0,3.5}'
 
 const texto = ref(TEXTO_INICIAL)
@@ -68,10 +68,50 @@ const handleClick = async () => {
   }, 4000)
 }
 
+const resultOfSendingAll = ref([])
+const stop = ref(false)
+
+const handleClickSendAll = async () => {
+  stop.value = false
+  resultOfSendingAll.value = []
+  try {
+    for (const r of resultado.value.valid) {
+      if (stop.value) continue
+
+      const response = await fetch('https://donde-esta-supercoco.vercel.app/api/reto/2', {
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json'
+        },
+        method: 'POST',
+        body: JSON.stringify({ solution: r })
+      })
+
+      const data = await response.json()
+
+      resultOfSendingAll.value.push({ sent: r, response: data })
+
+      await sleep(2000)
+    }
+  } catch (ex) {
+    console.error('Algo ha ido mal...')
+    respuesta.value = 'Algo ha ido mal...'
+    respuestaFailed.value = true
+    setTimeout(() => {
+      respuesta.value = ''
+      respuestaFailed.value = false
+    }, 4000)
+  }
+
+  stop.value = true
+}
+
 const handleReset = () => {
   console.log('click')
   texto.value = TEXTO_INICIAL
 }
+
+const sleep = ms => new Promise(resolve => setTimeout(resolve, ms))
 
 </script>
 
@@ -87,7 +127,7 @@ const handleReset = () => {
         <input v-model="texto" type="text" />
       </div>
     </div>
-    <div class="buttons">
+    <div class="right">
       <a @click="handleReset">reset</a>
     </div>
     <div class="resultado">
@@ -113,12 +153,37 @@ const handleReset = () => {
     </div>
 
     <div class="buttons">
-      <button @click="handleClick">Envia el resultado!</button>
+      <div>
+        <button class="send-one" :disabled="resultadoSeleccionado === ''" @click="handleClick">Envia el resultado!</button>
+      </div>
+      <div>
+        <button class="send-all" :disabled="resultado.valid.length === 0" @click="handleClickSendAll">Envia TODOS los resultados*!</button><br />
+        <small>se envian peticiones al servidor con una espera de 2 segundo por cada petición</small>
+      </div>
     </div>
 
     <div class="respuesta" v-if="respuesta" :class="{ failed: respuestaFailed }">
       {{ respuesta }}
     </div>
+
+    <div class="respuesta" v-if="resultOfSendingAll.length > 0">
+      <ul>
+        <li v-for="result in resultOfSendingAll" :key="result.sent">
+          {{ result?.sent }}: {{ result?.response }}
+        </li>
+      </ul>
+
+      <div v-if="!stop" class="loading">
+        <div class="bar"></div>
+      </div>
+
+      <div class="buttons">
+
+        <button :disabled="resultOfSendingAll.length === 0" class="clear" @click="resultOfSendingAll = []">clear</button>
+        <button :disabled="stop" class="stop" @click="stop = true">stop</button>
+      </div>
+    </div>
+
   </section>
 
 </template>
@@ -170,7 +235,15 @@ input {
 
 .resultado .contenido div {
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
+}
+
+@media screen and (min-width:450px) {
+  .resultado .contenido div {
+
+    flex-direction: row;
+  }
+
 }
 
 .resultado .contenido span {
@@ -204,8 +277,6 @@ input {
 button {
   background-color: black;
   align-self: end;
-  width: 50%;
-  margin-top: 1.5em;
   border: 3px solid white;
   padding: 0.6em 1.2em;
   font-size: 1em;
@@ -247,13 +318,77 @@ ul {
 }
 
 .buttons {
+
   display: flex;
-  flex-direction: row;
-  justify-content: flex-end;
-  align-items: flex-end;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  gap: 2em;
+  margin-block: 1.5em;
+}
+
+.buttons>* {
+  width: 100%
+}
+
+@media screen and (min-width:450px) {
+  .buttons {
+    flex-direction: row;
+  }
+
+  .buttons>* {
+    width: 50%
+  }
+}
+
+.buttons .send-one {
+  width: 100%;
+}
+
+.buttons .send-all {
+  width: 100%;
+}
+
+.buttons small {
+  display: inline-block;
+  margin-top: 10px;
+  font-size: .7em;
+
 }
 
 .buttons a {
   cursor: pointer;
+}
+
+.respuesta .buttons {
+  margin-inline: 1em;
+}
+
+.loading {
+  height: 30px;
+  margin-inline: 40px;
+  padding: 2px;
+  border: 3px solid white;
+}
+
+.bar {
+  width: 50%;
+  height: 100%;
+  background-color: greenyellow;
+  animation: bar-grow 2.1s ease-in-out infinite;
+}
+
+@keyframes bar-grow {
+  0% {
+    width: 0%;
+  }
+
+  100% {
+    width: 100%;
+  }
+}
+
+.right {
+  text-align: right;
 }
 </style>
