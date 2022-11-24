@@ -22,6 +22,9 @@ import Rainbow from './RainbowSeparator.vue'
       <Reto3></Reto3>
     </div>
   </main>
+  <footer>
+
+  </footer>
 </template>
 
 <style scoped>
@@ -30,6 +33,13 @@ header {
   position: sticky;
   top: 0;
   z-index: 1;
+}
+
+footer {
+  scroll-snap-align: start;
+  min-height: 50vh;
+  background-color: purple;
+  margin-top: 20em;
 }
 
 nav {

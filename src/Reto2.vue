@@ -3,8 +3,8 @@
 import { unwrap } from '../coords/unwrapper.js'
 import { computed, ref } from 'vue'
 
-const TEXTO_INICIAL = '{3311014444}'
-const RESULTADO_INICIAL = '{2.0,3.5}'
+const TEXTO_INICIAL = '{371123}'
+const RESULTADO_INICIAL = '{37.1,12.3}'
 
 const texto = ref(TEXTO_INICIAL)
 
