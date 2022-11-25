@@ -1,6 +1,6 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <script setup lang="ts">
-import { computed, getCurrentInstance, ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 
 const texto = ref('')
 
@@ -74,7 +74,7 @@ const doFetch = async (row, col) => {
       'Content-Type': 'application/json'
     },
     method: 'POST',
-    body: JSON.stringify({ checkpoint: `{${row},${col}}` })
+    body: JSON.stringify({ checkpoint: `{${col},${row}}` })
   })
 }
 
@@ -86,7 +86,7 @@ const handleCellClick = async (row, col) => {
         'Content-Type': 'application/json'
       },
       method: 'POST',
-      body: JSON.stringify({ checkpoint: `{${row},${col}}` })
+      body: JSON.stringify({ checkpoint: `{${col},${row}}` })
     })
 
     if (!response.ok) {
