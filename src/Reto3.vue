@@ -1,6 +1,8 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
+import html2canvas from 'html2canvas'
+import tesseract from 'tesseract.js'
 
 const texto = ref('')
 
@@ -62,7 +64,61 @@ const handleClick = async () => {
   }
 
   respuesta.value = resultJSON.reduce((previous, current) => previous + ' ' + current?.status, '')
+
+  // esperamos a que todos los cuadrados se hayan dado la vuelta...
+  await sleep(1000)
+
+  // obtenemos el carácter con IA (html2canvas + tesseract)
+  await getCharacter()
+
   respuestaFailed.value = false
+}
+
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
+
+const handleClickCharacter = () => {
+  console.log('handleClickCharacter')
+  getCharacter()
+}
+
+const getCharacter = () => {
+  const grid = document.getElementById('grid')
+  if (!grid) return null
+
+  html2canvas(grid, {
+    windowHeight: 100,
+    windowWidth: 100
+  }).then(async canvas => {
+    const image = canvas.toDataURL()
+    console.log(image)
+    console.log('%c ', `font-size:1px; background-size:contain; padding: ${canvas.height / 2}px ${canvas.width / 2}px; background: url(${canvas.toDataURL()})`)
+
+    // const data = await tesseract.recognize(myImage, 'eng', { logger: m => console.log(m) })
+    // await tesseract.loadLanguage('LCDDot_FT_500')
+
+    const { createWorker } = tesseract;
+    (async () => {
+      const worker = createWorker()
+      await worker.load()
+      await worker.loadLanguage('eng')
+      await worker.initialize('eng', tesseract.OEM.DEFAULT)
+      await worker.setParameters({
+        tessedit_char_whitelist: '0123456789PC',
+        tessedit_pageseg_mode: tesseract.PSM.SINGLE_CHAR
+      })
+      const { data } = await worker.recognize(canvas)
+      console.log(data)
+
+      const letter = data.text[0] ? data.text[0] : 'z'
+
+      texto.value = texto.value + letter
+
+      await worker.terminate()
+    })()
+
+    // const data = await tesseract.recognize(canvas)
+    // console.log(data)
+  })
 }
 
 const doFetch = async (row, col) => {
@@ -127,7 +183,7 @@ const handleCellClick = async (row, col) => {
         </tr>
       </table> -->
 
-      <div class="grid">
+      <div id="grid" class="grid">
         <div class="row" v-for="row in rows" :key="row">
           <div class="col" v-for="col in cols" :key="col"
             @click="handleCellClick(row, col)"
@@ -136,12 +192,13 @@ const handleCellClick = async (row, col) => {
               unchecked: responses[row][col] === false,
               undefined: responses[row][col] === undefined
             }">
-            {{ `{ ${col} , ${row} }` }}
+            <!-- {{ `{ ${col} , ${row} }` }} -->
           </div>
         </div>
       </div>
 
       <button @click="handleClick">Me aburro, gira todos...</button>
+      <button @click="handleClickCharacter">Get Character...</button>
 
       <!-- <ButtonVue @click="handleClick">
         I'm bored, resolve all pls...
@@ -189,7 +246,7 @@ section {
   flex-direction: column;
 }
 
-.discovery h6{
+.discovery h6 {
   align-self: center;
   margin: 0;
   margin-top: 3em;
@@ -235,49 +292,50 @@ table td.undefined {
 } */
 
 .grid {
-  perspective: 500px;
-  display: flex;
+  display: inline-flex;
   flex-direction: column;
-  gap: 3px;
-  perspective: 500px;
-  margin-block: 1em;
+  /* gap: 3px; */
+  margin: 1em auto;
+  width: auto;
+  padding: 1em;
+  background-color: white;
 }
 
 .row {
   perspective: 400px;
+  perspective-origin: center;
+
   display: flex;
   flex-direction: row;
-  gap: 3px;
+  /* gap: 3px; */
   justify-content: center;
 }
 
 .col {
-  perspective: 400px;
-  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
   transform: rotateY(180deg);
-  height: 75px;
-  width: 75px;
+  height: 40px;
+  width: 40px;
   background-color: white;
   border: 0px solid white;
   overflow: hidden;
   font-size: small;
   text-align: center;
   letter-spacing: -4px;
-  transition: transform .4s linear , background-color .22s step-end , box-shadow .1s linear;
+  transition: transform .4s linear, background-color .22s step-end, box-shadow .1s linear;
 }
 
 .col.checked {
-  background-color: red;
-  transform: rotate(0);
+  background: radial-gradient(white, black, black, black, white);
+  transform: rotateY(0);
   z-index: 1;
 }
 
 .col.unchecked {
-  background-color: white;
-  transform: rotate(0);
+  background-color: transparent;
+  transform: rotateY(0);
 }
 
 .col.checked,
@@ -306,7 +364,7 @@ table td.undefined {
   flex-direction: column;
 }
 
-.formulario>span{
+.formulario>span {
   font-size: x-small;
   margin-bottom: 1em;
   letter-spacing: -0.5px;
