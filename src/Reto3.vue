@@ -80,14 +80,7 @@ const doFetch = async (row, col) => {
 
 const handleCellClick = async (row, col) => {
   try {
-    const response = await fetch(`https://donde-esta-supercoco.vercel.app/api/reto/3${texto.value}`, {
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json'
-      },
-      method: 'POST',
-      body: JSON.stringify({ checkpoint: `{${col},${row}}` })
-    })
+    const response = await doFetch(row, col)
 
     if (!response.ok) {
       // console.error('Algo ha ido mal', response.status)
