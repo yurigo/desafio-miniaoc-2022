@@ -11,6 +11,8 @@
         "coverage": "vitest run --coverage"
     },
     "dependencies": {
+        "html2canvas": "^1.4.1",
+        "tesseract.js": "^3.0.3",
         "vue": "^3.2.41"
     },
     "devDependencies": {
