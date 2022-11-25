@@ -34,7 +34,7 @@ watch(texto, async (newQuestion, oldQuestion) => {
 })
 
 const resultado = computed(() => {
-  return `3${texto.value}`.replace('P', '.').replace('C', ',').replace('z', '')
+  return `3${texto.value}`.replaceAll('P', '.').replaceAll('C', ',').replaceAll('z', '')
 })
 
 const respuestaFailed = ref(false)
@@ -189,7 +189,7 @@ section {
   flex-direction: column;
 }
 
-.discovery h6{
+.discovery h6 {
   align-self: center;
   margin: 0;
   margin-top: 3em;
@@ -266,7 +266,7 @@ table td.undefined {
   font-size: small;
   text-align: center;
   letter-spacing: -4px;
-  transition: transform .4s linear , background-color .22s step-end , box-shadow .1s linear;
+  transition: transform .4s linear, background-color .22s step-end, box-shadow .1s linear;
 }
 
 .col.checked {
@@ -306,7 +306,7 @@ table td.undefined {
   flex-direction: column;
 }
 
-.formulario>span{
+.formulario>span {
   font-size: x-small;
   margin-bottom: 1em;
   letter-spacing: -0.5px;
