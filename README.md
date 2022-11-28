@@ -91,6 +91,23 @@ Se han hecho 3 bancos de pruebas:
 | helper.test.js       | Test unitarios del método isValid                                                                                                                                                                                                                                                                                                                     |
 | optimization.test.js | Al crear los resultados a partir de una entrada, se recorre el string con tres índices donde se insertará el '.' o la ','.  Teniendo en cuenta que se puede calcular el número de combinaciones posibles previamente a las iteraciones, podemos crear un test que verifique que se hacen tantas iteraciones como el número de combinaciones posibles. |
 
+# Reto 3: Endiablado
+
+Para descubrir la coordenada se puede crear un endpoint dinámico al que le iremos añadiendo caractéres según vayamos descubriendolos.
+
+Se ha encapsulado la llamada a la api en un módulo: [`cell.js`](grid/cell.js) para posteriormente aplicar testing.
+
+## Testing
+
+Se han hecho 1 banco de prueba:
+
+- [`cell.test.js`](grid/cell.test.js)
+
+Para diseñar este banco de pruebas se ha utilizado [resolves](https://vitest.dev/api/#resolves) y [rejects](https://vitest.dev/api/#rejects) de Vitest para trabajar con Promesas.
+
+### Bonus
+
+Para mejorar la velocidad se podrían agrupar las Promesas y ejecutar un Promise.all, se puede ver una comparación entre [`cell.test.js:119:0`](grid/cell.test.js#L119) en [`cell.test.js:141:0`](grid/cell.test.js#L141)
 
 # Extras:
 
