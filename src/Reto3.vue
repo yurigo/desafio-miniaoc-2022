@@ -1,6 +1,8 @@
 <!-- eslint-disable vue/multi-word-component-names -->
-<script setup lang="ts">
+<script setup lang="jsx">
 import { computed, ref, watch } from 'vue'
+
+import { revealCell } from '../grid/cell'
 
 const texto = ref('')
 
@@ -34,7 +36,7 @@ watch(texto, async (newQuestion, oldQuestion) => {
 })
 
 const resultado = computed(() => {
-  return `3${texto.value}`.replaceAll('P', '.').replaceAll('C', ',').replaceAll('z', '')
+  return `3${texto.value}`.toString().replaceAll('P', '.').replaceAll('C', ',').replaceAll('z', '')
 })
 
 const respuestaFailed = ref(false)
@@ -42,50 +44,38 @@ const respuesta = ref()
 
 // 7P1Cz12P3
 
-const handleClick = async () => {
+const handleRevealAllClick = async () => {
   const promises = []
   for (const row in rows) {
     for (const col in cols) {
-      promises.push(doFetch(row, col))
-      doFetch(row, col)
+      // promises.push(doFetch(row, col))
+      promises.push(revealCell(texto.value, row, col))
     }
   }
-  const responsesFromApi = await Promise.all(promises)
-  console.log(responsesFromApi)
-  const result = responsesFromApi.map((response) => response.ok)
 
-  const promisesJSON = responsesFromApi.map((response) => response.json())
-  const resultJSON = await Promise.all(promisesJSON)
+  try {
+    const responsesFromApi = await Promise.all(promises)
+    const result = responsesFromApi.map((response) => response.ok)
+    const promisesJSON = responsesFromApi.map((response) => response.json())
+    const resultJSON = await Promise.all(promisesJSON)
 
-  for (let i = 0; i < result.length; i++) {
-    responses.value[Math.floor(i / 7)][i % 7] = result[i]
+    for (let i = 0; i < result.length; i++) {
+      responses.value[Math.floor(i / 7)][i % 7] = result[i]
+    }
+
+    respuesta.value = resultJSON.reduce((previous, current) => previous + ' ' + current?.status, '')
+    respuestaFailed.value = false
+  } catch (ex) {
+    handleError(ex.message)
   }
-
-  respuesta.value = resultJSON.reduce((previous, current) => previous + ' ' + current?.status, '')
-  respuestaFailed.value = false
-}
-
-const doFetch = async (row, col) => {
-  // console.log(`https://donde-esta-supercoco.vercel.app/api/reto/3${texto.value}`)
-  // console.log({ checkpoint: `{${row},${col}}` })
-  return fetch(`https://donde-esta-supercoco.vercel.app/api/reto/3${texto.value}`, {
-    headers: {
-      Accept: 'application/json',
-      'Content-Type': 'application/json'
-    },
-    method: 'POST',
-    body: JSON.stringify({ checkpoint: `{${col},${row}}` })
-  })
 }
 
 const handleCellClick = async (row, col) => {
   try {
-    const response = await doFetch(row, col)
+    // const response = await doFetch(row, col)
+    const response = await revealCell(texto.value, row, col)
 
     if (!response.ok) {
-      // console.error('Algo ha ido mal', response.status)
-      // respuesta.value = 'Algo ha ido mal (' + response.status + ')'
-      // respuestaFailed.value = true
       responses.value[row][col] = false
       return
     }
@@ -97,11 +87,36 @@ const handleCellClick = async (row, col) => {
     respuesta.value = data.status
     respuestaFailed.value = false
   } catch (ex) {
-    console.error('Algo ha ido mal...')
-    respuesta.value = 'Algo ha ido mal...'
-    respuestaFailed.value = true
+    handleError(ex.message)
   }
 }
+
+const handleError = (message) => {
+  respuesta.value = `Algo ha ido mal... ${message}`
+  respuestaFailed.value = true
+
+  setTimeout(() => {
+    respuesta.value = ''
+    respuestaFailed.value = false
+  }, 4000)
+}
+
+const handleKeyPress = (event) => {
+  const regex = new RegExp(event.target.pattern)
+
+  if (!regex.test(event.key)) {
+    event.preventDefault()
+    return false
+  }
+}
+
+// const handleKeyUp = (event) => {
+//   event.target.checkValidity()
+// }
+
+// const handleInvalid = (event) => {
+//   console.log('invalid')
+// }
 
 </script>
 
@@ -141,7 +156,7 @@ const handleCellClick = async (row, col) => {
         </div>
       </div>
 
-      <button @click="handleClick">Me aburro, gira todos...</button>
+      <button @click="handleRevealAllClick">Me aburro, gira todos...</button>
 
       <!-- <ButtonVue @click="handleClick">
         I'm bored, resolve all pls...
@@ -153,7 +168,9 @@ const handleCellClick = async (row, col) => {
       <label>Endpoint</label>
       <span>Ves añadiendo las letras que vayas encontrando (recuerda números, P ó C ó z)</span>
       <div>
-        <label>api/reto/3</label><input v-model="texto" type="text" pattern="[0-9]" />
+        <label>api/reto/3</label>
+        <input v-model="texto" type="text" pattern="[0-9PCz]+" required
+          @keypress="handleKeyPress" />
       </div>
     </div>
 
@@ -380,5 +397,10 @@ button:disabled {
 
 .failed {
   --color: red;
+}
+
+.invalid {
+  color: red;
+  border-color: red;
 }
 </style>
